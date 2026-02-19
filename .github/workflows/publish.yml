@@ -1,0 +1,53 @@
+name: Publish
+
+on:
+  schedule:
+    - cron: "30 6 14,28 * *"
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: ${{ matrix.postgres }}-${{ matrix.postgis }}-${{ matrix.variant }}
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ${{ github.repository_owner }}/postgis
+      REGISTRY: ghcr.io
+    strategy:
+      matrix:
+        postgres: [17, 18]
+        postgis: [3.6]
+        variant: [alpine]
+        include:
+          - postgres: 17
+            postgis: 3.5
+            variant: alpine
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          repository: postgis/docker-postgis
+      - uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+      - uses: docker/metadata-action@v5
+        id: meta
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: ${{ matrix.postgres }}-${{ matrix.postgis }}-${{ matrix.variant }}
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          context: ${{ matrix.postgres }}-${{ matrix.postgis }}/${{ matrix.variant }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64,linux/arm64
+          provenance: false
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
