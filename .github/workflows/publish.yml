@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           repository: postgis/docker-postgis
-      - uses: docker/setup-buildx-action@v3
+      - uses: docker/setup-buildx-action@v4
         with:
           platforms: linux/amd64,linux/arm64
       - uses: docker/metadata-action@v5
