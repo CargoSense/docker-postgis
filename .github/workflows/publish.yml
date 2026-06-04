@@ -25,7 +25,7 @@ jobs:
             postgis: 3.5
             variant: alpine
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v6.0.2
         with:
           repository: postgis/docker-postgis
       - uses: docker/setup-buildx-action@v4
