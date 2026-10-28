@@ -20,10 +20,6 @@ jobs:
         postgres: [17, 18]
         postgis: [3.6]
         variant: [alpine]
-        include:
-          - postgres: 17
-            postgis: 3.5
-            variant: alpine
     steps:
       - uses: actions/checkout@v7.0.1
         with:
